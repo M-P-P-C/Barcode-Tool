@@ -1,0 +1,594 @@
+{
+  "about": "Shared test vectors for GS1 parsing. Used by the unit tests and as examples in the app's GS1 checker. If the GS1 engine disagrees with an expectation here, the engine wins: update the vector and explain why in the pull request.",
+  "notation": "{GS} stands for ASCII 29, the group separator that ends a variable-length field (FNC1).",
+  "expectFields": {
+    "kind": "gs1 = GS1 AI data, gtin = EAN/UPC product number, digital-link = GS1 Digital Link URI, text = anything else",
+    "valid": "true when the engine found no errors",
+    "verdict": "the one-line verdict the result screen shows: Data valid, Errors found, Not GS1 or Not checked",
+    "elements": "AIs in order with their raw values; titles come from the engine and are not checked here",
+    "bracketed": "the data in human-readable (AI) syntax",
+    "digitalLink": "the GS1 Digital Link URI the engine builds, using its default id.gs1.org stem",
+    "errorAi": "the AI the engine blames for the error, when it names one",
+    "hasInfo": "true when the result carries an informational note",
+    "errorMarkup": "the engine's copy of the faulty AI, with the offending characters between | signs"
+  },
+  "barcodeField": "barcode: how tools/make_fixtures.py draws this vector as a test image (format name, content, and gs1: true for GS1 mode, where AIs are written in [square brackets]). Vectors without it are only used as typed-in data.",
+  "requirementsField": "the requirement IDs (spec/requirements.json) this vector's expected result verifies; both the engine test and the result-screen test check that result and name them in their titles",
+  "scans": [
+    {
+      "id": "dm-gtin-expiry-batch",
+      "label": "GS1 DataMatrix: GTIN, expiry date, batch",
+      "requirements": [
+        "REQ-GS1-002",
+        "REQ-GS1-003",
+        "REQ-GS1-008"
+      ],
+      "symbologyId": "]d2",
+      "message": "01095060001343521726123110ABC123",
+      "barcode": {
+        "format": "DataMatrix",
+        "content": "[01]09506000134352[17]261231[10]ABC123",
+        "gs1": true
+      },
+      "expect": {
+        "kind": "gs1",
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "09506000134352"
+          },
+          {
+            "ai": "17",
+            "value": "261231"
+          },
+          {
+            "ai": "10",
+            "value": "ABC123"
+          }
+        ],
+        "bracketed": "(01)09506000134352(17)261231(10)ABC123",
+        "digitalLink": "https://id.gs1.org/01/09506000134352/10/ABC123?17=261231"
+      }
+    },
+    {
+      "id": "dm-separator-after-batch",
+      "label": "GS1 DataMatrix: batch ended by a separator, then serial",
+      "requirements": [
+        "REQ-GS1-002",
+        "REQ-GS1-003",
+        "REQ-DAT-001"
+      ],
+      "symbologyId": "]d2",
+      "message": "010950600013435210ABC123{GS}21XYZ789",
+      "barcode": {
+        "format": "DataMatrix",
+        "content": "[01]09506000134352[10]ABC123[21]XYZ789",
+        "gs1": true
+      },
+      "expect": {
+        "kind": "gs1",
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "09506000134352"
+          },
+          {
+            "ai": "10",
+            "value": "ABC123"
+          },
+          {
+            "ai": "21",
+            "value": "XYZ789"
+          }
+        ],
+        "bracketed": "(01)09506000134352(10)ABC123(21)XYZ789",
+        "digitalLink": "https://id.gs1.org/01/09506000134352/10/ABC123/21/XYZ789"
+      }
+    },
+    {
+      "id": "dm-lost-separator",
+      "label": "GS1 DataMatrix: separator lost, so the serial number becomes part of the batch",
+      "requirements": [
+        "REQ-GS1-002",
+        "REQ-DAT-003"
+      ],
+      "symbologyId": "]d2",
+      "message": "010950600013435210ABC12321XYZ789",
+      "barcode": {
+        "format": "DataMatrix",
+        "content": "[01]09506000134352[10]ABC12321XYZ789",
+        "gs1": true
+      },
+      "expect": {
+        "kind": "gs1",
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "09506000134352"
+          },
+          {
+            "ai": "10",
+            "value": "ABC12321XYZ789"
+          }
+        ],
+        "bracketed": "(01)09506000134352(10)ABC12321XYZ789"
+      }
+    },
+    {
+      "id": "dm-trailing-separator",
+      "label": "GS1 DataMatrix: harmless separator at the very end",
+      "requirements": [
+        "REQ-GS1-002",
+        "REQ-DAT-001"
+      ],
+      "symbologyId": "]d2",
+      "message": "01095060001343521726123110ABC123{GS}",
+      "expect": {
+        "kind": "gs1",
+        "valid": true,
+        "verdict": "Data valid",
+        "bracketed": "(01)09506000134352(17)261231(10)ABC123"
+      }
+    },
+    {
+      "id": "dm-bad-gtin-check-digit",
+      "label": "GS1 DataMatrix: GTIN with a wrong check digit",
+      "requirements": [
+        "REQ-GS1-004"
+      ],
+      "symbologyId": "]d2",
+      "message": "0109506000134353",
+      "barcode": {
+        "format": "DataMatrix",
+        "content": "[01]09506000134353",
+        "gs1": true
+      },
+      "expect": {
+        "kind": "gs1",
+        "valid": false,
+        "verdict": "Errors found",
+        "errorAi": "01",
+        "errorMarkup": "(01)0950600013435|3|"
+      }
+    },
+    {
+      "id": "gs1-128-bad-date",
+      "label": "GS1-128: expiry date 30 February",
+      "requirements": [
+        "REQ-GS1-004"
+      ],
+      "symbologyId": "]C1",
+      "message": "010950600013435217260230",
+      "barcode": {
+        "format": "Code128",
+        "content": "[01]09506000134352[17]260230",
+        "gs1": true
+      },
+      "expect": {
+        "kind": "gs1",
+        "valid": false,
+        "verdict": "Errors found",
+        "errorAi": "17"
+      }
+    },
+    {
+      "id": "gs1-128-net-weight",
+      "label": "GS1-128: net weight with three decimals (0.250 kg)",
+      "requirements": [
+        "REQ-GS1-002",
+        "REQ-GS1-003"
+      ],
+      "symbologyId": "]C1",
+      "message": "01095060001343523103000250",
+      "barcode": {
+        "format": "Code128",
+        "content": "[01]09506000134352[3103]000250",
+        "gs1": true
+      },
+      "expect": {
+        "kind": "gs1",
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "09506000134352"
+          },
+          {
+            "ai": "3103",
+            "value": "000250"
+          }
+        ],
+        "bracketed": "(01)09506000134352(3103)000250"
+      }
+    },
+    {
+      "id": "dm-batch-without-gtin",
+      "label": "GS1 DataMatrix: batch number with no product number",
+      "requirements": [
+        "REQ-GS1-004"
+      ],
+      "symbologyId": "]d2",
+      "message": "10ABC123",
+      "barcode": {
+        "format": "DataMatrix",
+        "content": "[10]ABC123",
+        "gs1": true
+      },
+      "expect": {
+        "kind": "gs1",
+        "valid": false,
+        "verdict": "Errors found",
+        "errorAi": "10"
+      }
+    },
+    {
+      "id": "dm-illegal-character",
+      "label": "GS1 DataMatrix: a character GS1 does not allow in AI (99)",
+      "requirements": [
+        "REQ-GS1-004"
+      ],
+      "symbologyId": "]d2",
+      "message": "0109506000134352991|bad",
+      "barcode": {
+        "format": "DataMatrix",
+        "content": "[01]09506000134352[99]1|bad",
+        "gs1": true
+      },
+      "expect": {
+        "kind": "gs1",
+        "valid": false,
+        "verdict": "Errors found",
+        "errorAi": "99",
+        "errorMarkup": "(99)1|||bad"
+      }
+    },
+    {
+      "id": "ean13",
+      "label": "EAN-13 retail barcode",
+      "requirements": [
+        "REQ-GS1-005"
+      ],
+      "symbologyId": "]E0",
+      "message": "9506000134352",
+      "barcode": {
+        "format": "EAN13",
+        "content": "9506000134352"
+      },
+      "expect": {
+        "kind": "gtin",
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "09506000134352"
+          }
+        ],
+        "bracketed": "(01)09506000134352",
+        "digitalLink": "https://id.gs1.org/01/09506000134352"
+      }
+    },
+    {
+      "id": "ean13-bad-check-digit",
+      "label": "EAN-13 with a wrong check digit",
+      "requirements": [
+        "REQ-GS1-004",
+        "REQ-GS1-005"
+      ],
+      "symbologyId": "]E0",
+      "message": "9506000134353",
+      "expect": {
+        "kind": "gtin",
+        "valid": false,
+        "verdict": "Errors found"
+      }
+    },
+    {
+      "id": "upc-a",
+      "label": "UPC-A retail barcode (read as 13 digits with a leading 0)",
+      "requirements": [
+        "REQ-GS1-005"
+      ],
+      "symbologyId": "]E0",
+      "message": "0012345678905",
+      "barcode": {
+        "format": "UPCA",
+        "content": "012345678905"
+      },
+      "expect": {
+        "kind": "gtin",
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "00012345678905"
+          }
+        ],
+        "digitalLink": "https://id.gs1.org/01/00012345678905"
+      }
+    },
+    {
+      "id": "upc-e-expanded",
+      "label": "UPC-E retail barcode (read in its 13-digit expanded form)",
+      "requirements": [
+        "REQ-GS1-005"
+      ],
+      "symbologyId": "]E0",
+      "message": "0012345000065",
+      "barcode": {
+        "format": "UPCE",
+        "content": "01234565"
+      },
+      "expect": {
+        "kind": "gtin",
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "00012345000065"
+          }
+        ]
+      }
+    },
+    {
+      "id": "ean8",
+      "label": "EAN-8 retail barcode",
+      "requirements": [
+        "REQ-GS1-005"
+      ],
+      "symbologyId": "]E4",
+      "message": "96385074",
+      "barcode": {
+        "format": "EAN8",
+        "content": "96385074"
+      },
+      "expect": {
+        "kind": "gtin",
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "00000096385074"
+          }
+        ]
+      }
+    },
+    {
+      "id": "databar-expanded-weight",
+      "label": "GS1 DataBar Expanded: GTIN and net weight",
+      "requirements": [
+        "REQ-GS1-002",
+        "REQ-GS1-003"
+      ],
+      "symbologyId": "]e0",
+      "message": "01095060001343523103000250",
+      "barcode": {
+        "format": "DataBarExp",
+        "content": "[01]09506000134352[3103]000250",
+        "gs1": true
+      },
+      "expect": {
+        "kind": "gs1",
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "09506000134352"
+          },
+          {
+            "ai": "3103",
+            "value": "000250"
+          }
+        ]
+      }
+    },
+    {
+      "id": "gs1-qr-batch",
+      "label": "GS1 QR Code: GTIN and batch",
+      "requirements": [
+        "REQ-GS1-002",
+        "REQ-GS1-003"
+      ],
+      "symbologyId": "]Q3",
+      "message": "010950600013435210ABC123",
+      "barcode": {
+        "format": "QRCode",
+        "content": "[01]09506000134352[10]ABC123",
+        "gs1": true
+      },
+      "expect": {
+        "kind": "gs1",
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "09506000134352"
+          },
+          {
+            "ai": "10",
+            "value": "ABC123"
+          }
+        ]
+      }
+    },
+    {
+      "id": "upc-e-not-checked",
+      "label": "UPC-E (8 digits): shown, but not checked yet",
+      "requirements": [
+        "REQ-GS1-007"
+      ],
+      "symbologyId": "]E0",
+      "message": "01234565",
+      "expect": {
+        "kind": "gtin",
+        "valid": true,
+        "verdict": "Not checked",
+        "elements": [],
+        "hasInfo": true
+      }
+    },
+    {
+      "id": "qr-digital-link",
+      "label": "QR Code with a GS1 Digital Link",
+      "requirements": [
+        "REQ-GS1-006",
+        "REQ-GS1-008"
+      ],
+      "symbologyId": "]Q1",
+      "message": "https://id.gs1.org/01/09506000134352/10/ABC123",
+      "barcode": {
+        "format": "QRCode",
+        "content": "https://id.gs1.org/01/09506000134352/10/ABC123"
+      },
+      "expect": {
+        "kind": "digital-link",
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "09506000134352"
+          },
+          {
+            "ai": "10",
+            "value": "ABC123"
+          }
+        ],
+        "bracketed": "(01)09506000134352(10)ABC123",
+        "digitalLink": "https://id.gs1.org/01/09506000134352/10/ABC123"
+      }
+    },
+    {
+      "id": "qr-digital-link-bad-check-digit",
+      "label": "QR Code with a GS1 Digital Link whose GTIN has a wrong check digit",
+      "requirements": [
+        "REQ-GS1-004",
+        "REQ-GS1-006"
+      ],
+      "symbologyId": "]Q1",
+      "message": "https://id.gs1.org/01/09506000134353",
+      "barcode": {
+        "format": "QRCode",
+        "content": "https://id.gs1.org/01/09506000134353"
+      },
+      "expect": {
+        "kind": "digital-link",
+        "valid": false,
+        "verdict": "Errors found",
+        "errorAi": "01"
+      }
+    },
+    {
+      "id": "qr-plain-url",
+      "label": "QR Code with an ordinary web address",
+      "requirements": [
+        "REQ-GS1-009"
+      ],
+      "symbologyId": "]Q1",
+      "message": "https://example.com/hello",
+      "barcode": {
+        "format": "QRCode",
+        "content": "https://example.com/hello"
+      },
+      "expect": {
+        "kind": "text",
+        "valid": true,
+        "verdict": "Not GS1",
+        "elements": [],
+        "hasInfo": true
+      }
+    },
+    {
+      "id": "dm-plain-text",
+      "label": "Plain DataMatrix with ordinary text",
+      "requirements": [
+        "REQ-GS1-009"
+      ],
+      "symbologyId": "]d1",
+      "message": "HELLO WORLD",
+      "barcode": {
+        "format": "DataMatrix",
+        "content": "HELLO WORLD"
+      },
+      "expect": {
+        "kind": "text",
+        "valid": true,
+        "verdict": "Not GS1",
+        "elements": []
+      }
+    },
+    {
+      "id": "code128-plain",
+      "label": "Plain Code 128 (not GS1)",
+      "requirements": [
+        "REQ-GS1-009"
+      ],
+      "symbologyId": "]C0",
+      "message": "ORDER-4471",
+      "barcode": {
+        "format": "Code128",
+        "content": "ORDER-4471"
+      },
+      "expect": {
+        "kind": "text",
+        "valid": true,
+        "verdict": "Not GS1",
+        "elements": []
+      }
+    }
+  ],
+  "bracketed": [
+    {
+      "id": "bracketed-valid",
+      "input": "(01)09506000134352(17)261231(10)ABC123",
+      "requirements": [
+        "REQ-GS1-002",
+        "REQ-GS1-010"
+      ],
+      "expect": {
+        "valid": true,
+        "verdict": "Data valid",
+        "elements": [
+          {
+            "ai": "01",
+            "value": "09506000134352"
+          },
+          {
+            "ai": "17",
+            "value": "261231"
+          },
+          {
+            "ai": "10",
+            "value": "ABC123"
+          }
+        ],
+        "digitalLink": "https://id.gs1.org/01/09506000134352/10/ABC123?17=261231"
+      }
+    },
+    {
+      "id": "bracketed-bad-check-digit",
+      "input": "(01)09506000134353",
+      "requirements": [
+        "REQ-GS1-004",
+        "REQ-GS1-010"
+      ],
+      "expect": {
+        "valid": false,
+        "verdict": "Errors found",
+        "errorAi": "01"
+      }
+    }
+  ]
+}

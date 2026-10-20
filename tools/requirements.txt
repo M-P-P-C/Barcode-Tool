@@ -1,0 +1,5 @@
+# Exact versions for tools/make_fixtures.py and tools/make_icons.py, so the generated
+# test images come out byte-identical on every machine.
+zxing-cpp==3.1.1
+pillow==12.3.0
+numpy==2.5.3

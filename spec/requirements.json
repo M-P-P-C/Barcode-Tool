@@ -1,0 +1,400 @@
+{
+  "about": "What Barcode Inspector must do. Each requirement has a permanent ID. Tests name the IDs they verify in their titles, e.g. [REQ-GS1-002]; app/scripts/traceability.mjs builds the traceability matrix from the test results.",
+  "rules": [
+    "IDs are REQ-<AREA>-<NNN>. They are never renumbered or reused.",
+    "To change a requirement, edit its text; git history and the pull request record why.",
+    "A requirement that no longer applies keeps its ID and gets \"status\": \"withdrawn\".",
+    "risk follows FDA's Computer Software Assurance guidance: high = high process risk (a failure could show wrong barcode data as right, pass wrong data on to another system, or leak data); low = not high process risk.",
+    "verification: test = automated tests must name it and pass; manual = checked by hand, steps in the pull request; inspection = checked by code review.",
+    "milestone: the development milestone that introduced the requirement."
+  ],
+  "areas": {
+    "GS1": "GS1 data checking",
+    "DAT": "Data integrity and display",
+    "SCN": "Reading barcodes from images",
+    "CAM": "Live camera",
+    "HIS": "Scan history and backups",
+    "PRV": "Privacy and network",
+    "OFF": "Offline use, installing and updates",
+    "INF": "Information shown about the app"
+  },
+  "requirements": [
+    {
+      "id": "REQ-GS1-001",
+      "title": "GS1 data from identifier and raw bytes",
+      "requirement": "GS1 data is checked from the barcode's symbology identifier and its raw bytes, exactly as the reader returned them.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-GS1-002",
+      "title": "GS1 rules checked by the GS1 engine",
+      "requirement": "Every GS1 rule (AIs, lengths, characters, check digits, dates and which AIs belong together) is checked by the GS1 Barcode Syntax Engine, and the app shows the engine's result without changing it.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-GS1-003",
+      "title": "AI table",
+      "requirement": "A valid GS1 result lists each AI in order, with its number, the engine's title for it and its value exactly as encoded.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-GS1-004",
+      "title": "Errors shown with the faulty characters",
+      "requirement": "When the data breaks a GS1 rule, the result says \"Errors found\", shows the engine's explanation, and marks the characters the engine names as faulty.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-GS1-005",
+      "title": "EAN and UPC checked as GTINs",
+      "requirement": "EAN-13, UPC-A, UPC-E and EAN-8 numbers are checked by the GS1 engine as GTINs, including their check digit.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-GS1-006",
+      "title": "GS1 Digital Link",
+      "requirement": "A GS1 Digital Link web address in a QR Code or DataMatrix is read as GS1 data and checked by the engine; one that breaks a GS1 rule shows \"Errors found\".",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-GS1-007",
+      "title": "Unchecked data is marked as not checked",
+      "requirement": "Data the GS1 engine cannot check, such as an 8-digit UPC-E typed in, is shown as \"Not checked\", never as valid or invalid.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-GS1-008",
+      "title": "AI syntax and Digital Link of valid data",
+      "requirement": "For valid GS1 data, the result shows the data in AI syntax and, when the data has a product key, its GS1 Digital Link, both as made by the engine.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-GS1-009",
+      "title": "Other content shown as plain content",
+      "requirement": "Content that is not GS1 (text, ordinary web addresses, plain Code 128 and others) is shown as plain content marked \"Not GS1\", without GS1 errors.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-GS1-010",
+      "title": "Typed-in data checked the same way",
+      "requirement": "Data typed into the GS1 checker, as raw data with {GS} or as AI syntax, is checked by the same engine and shown on the same result screen.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-GS1-011",
+      "title": "No compliance claims",
+      "requirement": "The app says \"Data valid\", never that a barcode is compliant: it does not judge print quality.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-GS1-012",
+      "title": "Reader text never used for GS1",
+      "requirement": "The reader's text output is never used to read or check GS1 data.",
+      "risk": "high",
+      "verification": "inspection",
+      "milestone": "M2",
+      "note": "Only RawScan bytes and identifier reach app/src/gs1/; the reader's text field is not passed on (app/src/decoder/zxing.ts)."
+    },
+    {
+      "id": "REQ-GS1-013",
+      "title": "No home-made GS1 rules",
+      "requirement": "The app contains no GS1 rules of its own (AI tables, lengths, check digits or date rules); they all come from the GS1 engine.",
+      "risk": "high",
+      "verification": "inspection",
+      "milestone": "M1",
+      "note": "AGENTS.md hard rule 3."
+    },
+    {
+      "id": "REQ-DAT-001",
+      "title": "Every byte and the identifier kept",
+      "requirement": "Every byte of a barcode, including group separators (GS, byte 29), and its symbology identifier are kept exactly from the reader to the result, the history, copying and backup files.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M2"
+    },
+    {
+      "id": "REQ-DAT-002",
+      "title": "Raw data with visible separators and hex",
+      "requirement": "The result shows the raw data with every control character, such as GS, as a visible labelled mark, and can show every byte in hexadecimal.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-DAT-003",
+      "title": "Data never corrected",
+      "requirement": "Scanned data is never corrected or changed: no trimming, no added separators, no fixed check digits.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-DAT-004",
+      "title": "Web addresses shown as text",
+      "requirement": "Web addresses found in barcodes are shown as text, never as links.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M1"
+    },
+    {
+      "id": "REQ-DAT-005",
+      "title": "Copy and share formats",
+      "requirement": "A result can be copied or shared as AI syntax, raw data with {GS}, GS1 Digital Link and JSON with every byte in hexadecimal.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M4"
+    },
+    {
+      "id": "REQ-DAT-006",
+      "title": "Web addresses never opened",
+      "requirement": "The app never opens a web address found in a barcode by itself.",
+      "risk": "high",
+      "verification": "inspection",
+      "milestone": "M1",
+      "note": "No code navigates to scanned content; links in the app point only to its own pages and to fixed project addresses (app/src/ui/project.ts)."
+    },
+    {
+      "id": "REQ-SCN-001",
+      "title": "Photos and image files",
+      "requirement": "Every barcode in a photo or image file is read and outlined on the picture, and each gets its own result.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M2"
+    },
+    {
+      "id": "REQ-SCN-002",
+      "title": "Clean test images read exactly",
+      "requirement": "The clean image of every test barcode is read to exactly the expected symbology identifier and bytes.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M2"
+    },
+    {
+      "id": "REQ-SCN-003",
+      "title": "No wrong data from damaged images",
+      "requirement": "A damaged image gives either exactly the right barcode data or no result, never other data. The same barcode found twice in the same place counts once; identical labels in different places each get their own result.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M2"
+    },
+    {
+      "id": "REQ-SCN-004",
+      "title": "Photos the right way up",
+      "requirement": "Photos are read the right way up, using their rotation information, so outlines match the picture.",
+      "risk": "low",
+      "verification": "manual",
+      "milestone": "M2",
+      "note": "Checked with a sideways photo that carries a rotation flag; to be automated in the browser tests."
+    },
+    {
+      "id": "REQ-SCN-005",
+      "title": "Reading in the background",
+      "requirement": "Barcodes are read in a background worker, never on the page's main thread, so the screen stays responsive.",
+      "risk": "low",
+      "verification": "inspection",
+      "milestone": "M2",
+      "note": "app/src/decoder/client.ts is the only way pages reach the reader."
+    },
+    {
+      "id": "REQ-CAM-001",
+      "title": "Live camera reading",
+      "requirement": "The live camera reads barcodes by itself; a read freezes the exact picture that was read, with the code outlined, and shows the result until \"Scan next\".",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M3"
+    },
+    {
+      "id": "REQ-CAM-002",
+      "title": "Repeats ignored for 2 seconds",
+      "requirement": "The same barcode is ignored until it has been out of view for 2 seconds; a different barcode is read straight away.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M3"
+    },
+    {
+      "id": "REQ-CAM-003",
+      "title": "Camera controls only when offered",
+      "requirement": "Zoom, light, focus and camera switching are shown only when the camera offers them, including controls a camera reports late, and the app works without any of them.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M3"
+    },
+    {
+      "id": "REQ-CAM-004",
+      "title": "Camera problems explained",
+      "requirement": "When the camera can't be used (blocked, missing, in use, stopped, no picture or unsupported), the app says why, explains the fix for the browser in use, and offers photo mode.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M3"
+    },
+    {
+      "id": "REQ-CAM-005",
+      "title": "Camera off when leaving the page",
+      "requirement": "The camera, and its light, turns off when the user leaves the camera page.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M3"
+    },
+    {
+      "id": "REQ-CAM-006",
+      "title": "Beep and vibration",
+      "requirement": "A read gives a short beep, which can be turned off, and a vibration on phones that allow it.",
+      "risk": "low",
+      "verification": "manual",
+      "milestone": "M3"
+    },
+    {
+      "id": "REQ-CAM-007",
+      "title": "Camera off in the background",
+      "requirement": "The camera, and its light, turns off when the user switches to another app, and turns back on on return.",
+      "risk": "low",
+      "verification": "manual",
+      "milestone": "M3"
+    },
+    {
+      "id": "REQ-HIS-001",
+      "title": "Reads saved on the device",
+      "requirement": "Every barcode read with the camera or from a photo is saved on the device with its time and source, and is still there after the app is closed.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M4"
+    },
+    {
+      "id": "REQ-HIS-002",
+      "title": "Open and delete saved scans",
+      "requirement": "Saved scans are listed newest first; each can be opened with its full result or deleted, and all can be deleted after a confirmation.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M4"
+    },
+    {
+      "id": "REQ-HIS-003",
+      "title": "Newest 1,000 scans kept",
+      "requirement": "The history keeps the newest 1,000 scans; older ones are removed.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M4"
+    },
+    {
+      "id": "REQ-HIS-004",
+      "title": "Backup files",
+      "requirement": "A backup file holds every byte of each scan; loading it checks every scan again with the GS1 engine, skips scans already in the history, and adds nothing if any scan fails.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M4"
+    },
+    {
+      "id": "REQ-HIS-005",
+      "title": "Bad backup files refused",
+      "requirement": "A file that is not a backup from this app, is damaged, or is too large is refused with a message saying why.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M4"
+    },
+    {
+      "id": "REQ-HIS-006",
+      "title": "Saved data readable by every version",
+      "requirement": "The history database and the settings stay readable by older versions, so the live site, fixed release copies and previews, which share one browser storage, can all open them.",
+      "risk": "high",
+      "verification": "inspection",
+      "milestone": "M5",
+      "note": "AGENTS.md working rule; any change uses a new database name instead."
+    },
+    {
+      "id": "REQ-PRV-001",
+      "title": "No requests to other websites",
+      "requirement": "The app requests nothing from other websites: every file, including both engines, comes from its own site.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M0"
+    },
+    {
+      "id": "REQ-PRV-002",
+      "title": "Scans stay on the device",
+      "requirement": "Nothing scanned leaves the device unless the user copies or shares it: the app has no server, accounts, analytics or ads.",
+      "risk": "high",
+      "verification": "inspection",
+      "milestone": "M0",
+      "note": "The app is static files with no backend; the test of REQ-PRV-001 checks the network side."
+    },
+    {
+      "id": "REQ-PRV-003",
+      "title": "Strict Content Security Policy",
+      "requirement": "The page carries a strict Content Security Policy that allows loading files only from the app's own site.",
+      "risk": "high",
+      "verification": "test",
+      "milestone": "M0"
+    },
+    {
+      "id": "REQ-OFF-001",
+      "title": "Works offline",
+      "requirement": "After the first visit, the app opens and reads barcodes without a network connection.",
+      "risk": "low",
+      "verification": "manual",
+      "milestone": "M0",
+      "note": "Checked with the built site in a headless browser and in airplane mode on phones."
+    },
+    {
+      "id": "REQ-OFF-002",
+      "title": "Installs on Android and iPhone",
+      "requirement": "The app can be installed to the home screen on Android and iPhone and opens full screen from there.",
+      "risk": "low",
+      "verification": "manual",
+      "milestone": "M0"
+    },
+    {
+      "id": "REQ-OFF-003",
+      "title": "Updates arrive",
+      "requirement": "When a new version is published, an open app shows it after one reload.",
+      "risk": "low",
+      "verification": "manual",
+      "milestone": "M0",
+      "note": "Checked by publishing a newer test build next to the old one."
+    },
+    {
+      "id": "REQ-INF-001",
+      "title": "Versions shown",
+      "requirement": "The app shows its own version and the versions of the GS1 engine and the barcode reader.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M5"
+    },
+    {
+      "id": "REQ-INF-002",
+      "title": "About page",
+      "requirement": "The About page gives the privacy statement, install steps for Android and iPhone, and every open-source part in the app with its license and full license text.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M5"
+    },
+    {
+      "id": "REQ-INF-003",
+      "title": "Previews marked",
+      "requirement": "Versions before 1.0.0 say they are previews that may still change and are not for validated work.",
+      "risk": "low",
+      "verification": "test",
+      "milestone": "M5"
+    }
+  ]
+}

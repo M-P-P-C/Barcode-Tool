@@ -1,0 +1,74 @@
+# Publishes a fixed copy of each release, which never changes afterwards, for validated use:
+#   release v1.2.3  ->  https://<owner>.github.io/<repo>/v/1.2.3/
+# Runs when a release is published on GitHub. To make a release:
+#   1. In a pull request, set "version" in app/package.json (e.g. 1.2.3) and add the notes
+#      to CHANGELOG.md. Merge it.
+#   2. On GitHub: Releases > Draft a new release > tag v1.2.3 on main > Publish.
+# It can also be re-run by hand for an existing tag (Actions > Release > Run workflow).
+name: Release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag, for example v1.0.0
+        required: true
+
+# Shares the gh-pages branch with the Deploy workflow, so they run one at a time.
+concurrency:
+  group: gh-pages
+  cancel-in-progress: false
+
+permissions:
+  contents: write # push to the gh-pages branch
+
+jobs:
+  fixed-copy:
+    runs-on: ubuntu-latest
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      # The tag must match the app's version, so the copy's address and its content agree.
+      - id: version
+        working-directory: app
+        run: |
+          version="${TAG#v}"
+          app_version="$(node -p "require('./package.json').version")"
+          if [ "$version" != "$app_version" ]; then
+            echo "::error::Tag $TAG does not match app/package.json version $app_version"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+      # A fixed copy never changes: refuse to publish a version that is already there.
+      - name: Check this version is not published yet
+        run: |
+          git fetch --depth 1 origin gh-pages
+          if git ls-tree -d --name-only FETCH_HEAD v/ | grep -qx "v/${{ steps.version.outputs.version }}"; then
+            echo "::error::v/${{ steps.version.outputs.version }}/ is already published and must not change. Release a new version instead."
+            exit 1
+          fi
+      - run: npm ci
+        working-directory: app
+      - run: npm test
+        working-directory: app
+      - run: npm run build
+        working-directory: app
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/v/${{ steps.version.outputs.version }}/
+      - uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: app/dist
+          branch: gh-pages
+          target-folder: v/${{ steps.version.outputs.version }}
+          # Never touch anything else on the site; a version's folder is new each time.
+          clean: false
