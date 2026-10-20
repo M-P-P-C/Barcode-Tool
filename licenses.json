@@ -1,0 +1,114 @@
+[
+  {
+    "name": "gs1encoder",
+    "version": "1.4.1",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/gs1/gs1-syntax-engine",
+    "usedFor": "GS1 Barcode Syntax Engine: checking GS1 data"
+  },
+  {
+    "name": "idb",
+    "version": "8.0.4",
+    "license": "ISC",
+    "repository": "https://github.com/jakearchibald/idb",
+    "usedFor": "Scan history on the device"
+  },
+  {
+    "name": "react",
+    "version": "19.3.1",
+    "license": "MIT",
+    "repository": "https://github.com/react/react",
+    "usedFor": "Screens"
+  },
+  {
+    "name": "react-dom",
+    "version": "19.3.1",
+    "license": "MIT",
+    "repository": "https://github.com/react/react",
+    "usedFor": "Screens"
+  },
+  {
+    "name": "scheduler",
+    "version": "0.28.0",
+    "license": "MIT",
+    "repository": "https://github.com/react/react",
+    "usedFor": "Screens (part of React)"
+  },
+  {
+    "name": "tailwindcss",
+    "version": "4.3.3",
+    "license": "MIT",
+    "repository": "https://github.com/tailwindlabs/tailwindcss",
+    "usedFor": "Page styles"
+  },
+  {
+    "name": "vite",
+    "version": "8.3.4",
+    "license": "MIT",
+    "repository": "https://github.com/vitejs/vite",
+    "usedFor": "Loading the parts of the app"
+  },
+  {
+    "name": "vite-plugin-pwa",
+    "version": "2.0.0",
+    "license": "MIT",
+    "repository": "https://github.com/vite-pwa/vite-plugin-pwa",
+    "usedFor": "Installing the offline helper"
+  },
+  {
+    "name": "workbox-core",
+    "version": "7.4.1",
+    "license": "MIT",
+    "repository": "https://github.com/googlechrome/workbox",
+    "usedFor": "Offline use"
+  },
+  {
+    "name": "workbox-precaching",
+    "version": "7.4.1",
+    "license": "MIT",
+    "repository": "https://github.com/googlechrome/workbox",
+    "usedFor": "Offline use"
+  },
+  {
+    "name": "workbox-routing",
+    "version": "7.4.1",
+    "license": "MIT",
+    "repository": "https://github.com/googlechrome/workbox",
+    "usedFor": "Offline use"
+  },
+  {
+    "name": "workbox-strategies",
+    "version": "7.4.1",
+    "license": "MIT",
+    "repository": "https://github.com/googlechrome/workbox",
+    "usedFor": "Offline use"
+  },
+  {
+    "name": "zxing-wasm",
+    "version": "3.1.6",
+    "license": "MIT",
+    "repository": "https://github.com/Sec-ant/zxing-wasm",
+    "usedFor": "Barcode reading"
+  },
+  {
+    "name": "zxing-cpp",
+    "license": "Apache-2.0",
+    "repository": "https://github.com/zxing-cpp/zxing-cpp",
+    "usedFor": "Barcode reading, compiled into zxing-wasm (its ZXingWasm.cpp is Apache-2.0 too)",
+    "version": null
+  },
+  {
+    "name": "Emscripten runtime",
+    "license": "MIT OR NCSA",
+    "repository": "https://github.com/emscripten-core/emscripten",
+    "usedFor": "Runs the C and C++ code of both engines as WebAssembly",
+    "version": null
+  },
+  {
+    "name": "musl libc",
+    "license": "MIT",
+    "repository": "https://musl.libc.org",
+    "usedFor": "The C library inside both engines (part of Emscripten)",
+    "version": null
+  }
+]
